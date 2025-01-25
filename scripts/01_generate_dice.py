@@ -1,11 +1,27 @@
-# Import required libraries
 import json
 import csv
+import random
 
-# Load configuration from `config.json`
-# Define dice generation function:
-# - Accept number of dice and sides per die
-# - Ensure dice follow intransitivity rules (e.g., A > B, B > C, C > A)
-# - Randomly assign values to dice while maintaining the rules
+# Load configuration
+with open("config.json", "r") as config_file:
+    config = json.load(config_file)
 
-# Save dice configurations to a CSV file in `outputs/`
+def generate_intransitive_dice(num_dice, sides):
+    dice = []
+    for i in range(num_dice):
+        die = sorted(random.choices(range(1, sides + 1), k=sides))
+        dice.append(die)
+    # Shuffle to introduce intransitivity
+    for i in range(num_dice - 1):
+        dice[i + 1] = sorted(random.choices(range(1, sides + 1), k=sides))
+    return dice
+
+# Generate dice
+dice = generate_intransitive_dice(config["num_dice"], config["sides_per_die"])
+
+# Save dice to CSV
+with open("outputs/dice_data.csv", "w", newline="") as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(["Die", "Values"])
+    for i, die in enumerate(dice):
+        writer.writerow([f"Die {i + 1}", die])
